@@ -1,5 +1,4 @@
 import webpack from "webpack";
-import { BuildOptions } from "./types/config";
 
 export function buildLoaders(): webpack.RuleSetRule[] {
     const typescriptLoaders = {
