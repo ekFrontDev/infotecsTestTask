@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { getToken } from '../../../../shared/lib/localStorage';
+import { getToken } from "../../../../shared/lib/localStorage";
 
 interface AuthGuardProps {
     children: JSX.Element;
