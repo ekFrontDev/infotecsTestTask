@@ -7,3 +7,10 @@ export const fetchUsers = async (): Promise<Users[]> => {
     const response = await axios.get<Users[]>(API_URL);
     return response.data;
 };
+
+export const createUser = async (
+    user: Omit<Users, 'id'>
+): Promise<Users> => {
+    const response = await axios.post<Users>(API_URL, user);
+    return response.data;
+};
