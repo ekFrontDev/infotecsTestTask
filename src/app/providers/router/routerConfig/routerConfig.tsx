@@ -1,9 +1,9 @@
 import React from "react";
 import { AuthGuard } from "../../authGuard/ui/AuthGuard";
-import { AuthPage } from '../../../../pages/AuthPage';
+import { AuthPage } from "../../../../pages/AuthPage";
 import { NotFoundPage } from "../../../../pages/NotFoundPage";
 import { UsersPage } from "../../../../pages/UsersPage";
-import { RouteProps } from 'react-router-dom';
+import { RouteProps } from "react-router-dom";
 
 export enum AppRoutes {
   LOGIN = "login",

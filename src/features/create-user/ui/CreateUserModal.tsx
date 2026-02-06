@@ -45,8 +45,8 @@ export const CreateUserModal = ({ open, onClose }: CreateUserModalProps) => {
     return (
         <Modal
             title="Создание пользователя"
-            okText='Создать'
-            cancelText='Отмена'
+            okText="Создать"
+            cancelText="Отмена"
             open={open}
             onOk={handleOk}
             onCancel={onClose}
