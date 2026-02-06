@@ -5,20 +5,20 @@ import { UsersPage } from "../../../../pages/UsersPage";
 import { RouteProps } from 'react-router-dom';
 
 export enum AppRoutes {
-  AUTH = "auth",
+  LOGIN = "login",
   USERS = "users",
   NOT_FOUND = "not_found",
 };
 
 export const RoutePath: Record<AppRoutes, string> = {
-    [AppRoutes.AUTH]: "/",
+    [AppRoutes.LOGIN]: "/",
     [AppRoutes.USERS]: "/users", 
     [AppRoutes.NOT_FOUND]: "*"
 };
 
 export const routerConfig: Record<AppRoutes, RouteProps> = {
-    [AppRoutes.AUTH]: {
-        path: RoutePath.auth,
+    [AppRoutes.LOGIN]: {
+        path: RoutePath.login,
         element: <AuthPage />,
     },
     [AppRoutes.USERS]: {
