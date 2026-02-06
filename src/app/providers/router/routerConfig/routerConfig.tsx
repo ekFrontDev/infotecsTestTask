@@ -1,4 +1,5 @@
 import React from "react";
+import { AuthGuard } from "../../authGuard/ui/AuthGuard";
 import { AuthPage } from '../../../../pages/AuthPage';
 import { NotFoundPage } from "../../../../pages/NotFoundPage";
 import { UsersPage } from "../../../../pages/UsersPage";
@@ -23,10 +24,18 @@ export const routerConfig: Record<AppRoutes, RouteProps> = {
     },
     [AppRoutes.USERS]: {
         path: RoutePath.users,
-        element: <UsersPage />,
+        element: (
+            <AuthGuard>
+                <UsersPage />
+            </AuthGuard>
+        ),
     },
     [AppRoutes.NOT_FOUND]: {
         path: RoutePath.not_found,
-        element: <NotFoundPage />,
+        element: (
+            <AuthGuard>
+                <NotFoundPage />
+            </AuthGuard>
+        ),
     },
 };
