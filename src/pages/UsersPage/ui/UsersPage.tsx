@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import dayjs from 'dayjs';
 import { useUsers } from '../../../entities/users/model/useUsers';
 import { useNavigate } from "react-router-dom";
 import { removeToken } from "../../../shared/lib/localStorage";
+import { CreateUserModal } from '../../../features/create-user/ui/CreateUserModal';
 
 export const UsersPage = () => {
     const { data, isLoading, error } = useUsers();
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+
     const navigate = useNavigate();
 
     const logout = () => {
@@ -44,6 +47,15 @@ export const UsersPage = () => {
                     </li>
                 ))}
             </ul>
+
+            <button onClick={() => setIsCreateOpen(true)}>
+                Создать пользователя
+            </button>
+
+            <CreateUserModal
+                open={isCreateOpen}
+                onClose={() => setIsCreateOpen(false)}
+            />
         </>
     );
 };
