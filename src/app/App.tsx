@@ -6,7 +6,6 @@ const App = () => {
     return (
         <StrictMode>
             <AppProviders>
-                <div className="app">Start</div>
                 <AppRouter />
             </AppProviders>
         </StrictMode>
