@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import dayjs from "dayjs";
+import styled from "styled-components";
+import { List, Avatar, Button, Typography, Spin, Alert } from "antd";
+
 import { useUsers } from '../../../entities/users/model/useUsers';
 import { useNavigate } from "react-router-dom";
 import { removeToken } from "../../../shared/lib/localStorage";
@@ -7,8 +10,25 @@ import { CreateUserModal } from '../../../features/create-user/ui/CreateUserModa
 import { EditUserModal } from "../../../features/edit-user/ui/EditUserModal";
 import { Users } from "../../../entities/users/types/users";
 
+const { Text } = Typography;
+
+const PageWrapper = styled.div`
+    padding: 24px;
+`;
+
+const Header = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+`;
+
+const Footer = styled.div`
+    margin-top: 24px;
+`;
+
 export const UsersPage = () => {
     const { data, isLoading, error } = useUsers();
+
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<Users | null>(null);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -26,46 +46,74 @@ export const UsersPage = () => {
     };
 
     if (isLoading) {
-        return <div>Загрузка пользователей...</div>;
+        return (
+            <PageWrapper>
+                <Spin />
+            </PageWrapper>
+        );
     }
 
     if (error) {
-        return <div style={{ color: "red" }}>Ошибка: {error.message}</div>;
+        return (
+            <PageWrapper>
+                <Alert
+                    type="error"
+                    message="Ошибка загрузки пользователей"
+                    description={error.message}
+                    showIcon
+                />
+            </PageWrapper>
+        );
     }
 
     return (
-        <>
-            <h2>Страница пользователей</h2>
-            <button onClick={logout}>Выход</button>
+        <PageWrapper>
+            <Header>
+                <Button type="primary" onClick={logout}>
+                    Выход
+                </Button>
+            </Header>
 
-            <ul>
-                {data?.map((user) => (
-                    <li key={user.id} style={{ marginBottom: 16 }}>
-                        <img
-                            src={user.avatar}
-                            alt={user.name}
-                            width={40}
-                            height={40}
-                            style={{ borderRadius: "50%", cursor: "pointer" }}
-                            onClick={() => openEdit(user)}
+
+            <List
+                itemLayout="horizontal"
+                dataSource={data}
+                renderItem={(user) => (
+                    <List.Item>
+                        <List.Item.Meta
+                            avatar={
+                                <Avatar
+                                    src={user.avatar}
+                                    size={40}
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => openEdit(user)}
+                                />
+                            }
+                            title={
+                                <Text
+                                    strong
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => openEdit(user)}
+                                >
+                                    {user.name}
+                                </Text>
+                            }
+                            description={
+                                <Text type="secondary">
+                                    Зарегистрирован{" "}
+                                    {dayjs(user.createdAt).format("DD.MM.YYYY")}
+                                </Text>
+                            }
                         />
-                        <div 
-                            onClick={() => openEdit(user)}
-                            style={{ cursor: "pointer" }}
-                        >
-                            {user.name}
-                        </div>
-                        <div>
-                            Зарегистрирован:{" "}
-                            {dayjs(user.createdAt).format("DD.MM.YYYY")}
-                        </div>
-                    </li>
-                ))}
-            </ul>
+                    </List.Item>
+                )}
+            />
 
-            <button onClick={() => setIsCreateOpen(true)}>
-                Создать пользователя
-            </button>
+            <Footer>
+                <Button type="primary" onClick={() => setIsCreateOpen(true)}>
+                    Создать пользователя
+                </Button>
+            </Footer>
 
             <CreateUserModal
                 open={isCreateOpen}
@@ -76,6 +124,6 @@ export const UsersPage = () => {
                 user={selectedUser}
                 onClose={() => setIsEditOpen(false)}
             />
-        </>
+        </PageWrapper>
     );
 };

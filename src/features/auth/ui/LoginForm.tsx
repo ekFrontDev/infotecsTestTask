@@ -1,53 +1,72 @@
-import React, { useState } from "react";
+import React from "react";
 import { useLogin } from "../model/useLogin";
+import { Form, Input, Button, Alert } from 'antd';
 
 interface LoginFormProps {
     onSuccess: () => void;
 }
 
+interface LoginFormValues {
+    username: string;
+    password: string;
+}
+
 export const LoginForm = ({ onSuccess }: LoginFormProps) => {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
 
     const { mutate, isLoading, error } = useLogin();
 
-    const onSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        mutate(
-            { username, password },
-            {
-                onSuccess: () => {
-                    onSuccess();
-                },
-            }
-        );
+    const onFinish = (values: LoginFormValues) => {
+        mutate(values, {
+            onSuccess: () => {
+                onSuccess();
+            },
+        });
     };
 
     return (
-        <form onSubmit={onSubmit}>
-            <div>
-                <input
-                    placeholder="Логин"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                />
-            </div>
+        <Form
+            layout="vertical"
+            onFinish={onFinish}
+            autoComplete="off"
+        >
+            <Form.Item
+                name="username"
+                rules={[
+                    { required: true, message: "Введите логин" },
+                ]}
+            >
+                <Input placeholder="Логин" />
+            </Form.Item>
 
-            <div>
-                <input
-                    type="password"
-                    placeholder="Пароль"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-            </div>
+            <Form.Item
+                name="password"
+                rules={[
+                    { required: true, message: "Введите пароль" },
+                ]}
+            >
+                <Input.Password placeholder="Пароль" />
+            </Form.Item>
 
-            {error && <div style={{ color: "red" }}>{error.message}</div>}
+            {error && (
+                <Form.Item>
+                    <Alert
+                        type="error"
+                        message={error.message}
+                        showIcon
+                    />
+                </Form.Item>
+            )}
 
-            <button type="submit" disabled={isLoading}>
-                {isLoading ? "Загрузка..." : "Войти"}
-            </button>
-        </form>
+            <Form.Item>
+                <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={isLoading}
+                    block
+                >
+                    Войти
+                </Button>
+            </Form.Item>
+        </Form>
     );
 };
