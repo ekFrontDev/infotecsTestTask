@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { useLogin } from "../model/useLogin";
 import { Form, Input, Button, Alert } from 'antd';
 
@@ -10,6 +11,11 @@ interface LoginFormValues {
     username: string;
     password: string;
 }
+
+const ButtonWrapper = styled.div`
+    display: flex;
+    justify-content: flex-end;
+`;
 
 export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
@@ -58,14 +64,15 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
             )}
 
             <Form.Item>
-                <Button
-                    type="primary"
-                    htmlType="submit"
-                    loading={isLoading}
-                    block
-                >
-                    Войти
-                </Button>
+                <ButtonWrapper>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={isLoading}
+                    >
+                        Войти
+                    </Button>
+                </ButtonWrapper>
             </Form.Item>
         </Form>
     );

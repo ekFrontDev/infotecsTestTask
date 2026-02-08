@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Input } from "antd";
+import { Modal, Input, Form, Button } from "antd";
 import { useCreateUser } from "../../../entities/users/model/useCreateUser";
 
 interface CreateUserModalProps {
@@ -8,35 +8,20 @@ interface CreateUserModalProps {
 }
 
 export const CreateUserModal = ({ open, onClose }: CreateUserModalProps) => {
+    const [form] = Form.useForm();
     const { mutate, isLoading } = useCreateUser();
 
-    const [name, setName] = useState("");
-    const [avatar, setAvatar] = useState("");
-    const [error, setError] = useState("");
-
-    const handleOk = () => {
-        if (!name || !avatar) {
-            setError("Все поля обязательны");
-            return;
-        }
-
-        if (!avatar.startsWith("http")) {
-            setError("Некорректная ссылка");
-            return;
-        }
-
+    const handleFinish = (values: { name: string, avatar: string }) => {
         mutate(
             {
-                name,
-                avatar,
+                name: values.name,
+                avatar: values.avatar,
                 createdAt: new Date().toISOString(),
             },
             {
                 onSuccess: () => {
+                    form.resetFields();
                     onClose();
-                    setName('');
-                    setAvatar('');
-                    setError('');
                 },
             }
         );
@@ -45,28 +30,56 @@ export const CreateUserModal = ({ open, onClose }: CreateUserModalProps) => {
     return (
         <Modal
             title="Создание пользователя"
-            okText="Создать"
-            cancelText="Отмена"
             open={open}
-            onOk={handleOk}
             onCancel={onClose}
-            okButtonProps={{ disabled: isLoading }}
-            cancelButtonProps={{ disabled: isLoading }}
+            footer={[
+                <Button
+                    key="create"
+                    type="primary"
+                    loading={isLoading}
+                    onClick={() => form.submit()}
+                >
+                    Создать
+                </Button>,
+                <Button
+                    key="cancel"
+                    type="primary"
+                    onClick={onClose}
+                    disabled={isLoading}
+                >
+                    Отмена
+                </Button>,
+            ]}
             closable={!isLoading}
             maskClosable={!isLoading}
         >
-            <Input
-                placeholder="Имя"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-            />
-            <Input
-                style={{ marginTop: 8 }}
-                placeholder="Ссылка на аватарку"
-                value={avatar}
-                onChange={(e) => setAvatar(e.target.value)}
-            />
-            {error && <div style={{ color: 'red' }}>{error}</div>}
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleFinish}
+                requiredMark={false}
+            >
+                <Form.Item
+                    label="Имя"
+                    name="name"
+                    rules={[
+                        { required: true, message: "Введите имя" },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+                    label="Ссылка на аватарку"
+                    name="avatar"
+                    rules={[
+                        { required: true, message: "Введите ссылку" },
+                        { type: "url", message: "Некорректная ссылка" },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+            </Form>
         </Modal>
     );
 };
