@@ -1,52 +1,54 @@
-import { Button, Input, Modal, Popconfirm } from "antd";
+import { Button, Input, Modal, Popconfirm, Form } from "antd";
 import React, { useEffect, useState } from "react";
 import { useEditUser } from "../../../entities/users/model/useEditUser";
 import { Users } from "../../../entities/users/types/users";
 import { useDeleteUser } from "../../../entities/users/model/useDeleteUsers";
-
+import styled from "styled-components";
 interface EditUserModalProps {
     open: boolean;
     user: Users | null;
     onClose: () => void;
 }
 
+const ModalFooter = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const RightButtons = styled.div`
+    display: flex;
+    gap: 8px;
+`;
+
 export const EditUserModal = ({ open, user, onClose }: EditUserModalProps) => {
+    const [form] = Form.useForm();
     const { mutate, isLoading } = useEditUser();
     const { mutate: deleteUser, isLoading: isDeleting } = useDeleteUser();
 
-    const [name, setName] = useState("");
-    const [avatar, setAvatar] = useState("");
-    const [error, setError] = useState("");
-
     useEffect(() => {
-        if (user) {
-            setName(user.name);
-            setAvatar(user.avatar);
+        if (user && open) {
+            form.setFieldsValue({
+                id: user.id,
+                name: user.name,
+                avatar: user.avatar,
+            });
         }
-    }, [user]);
+    }, [user, open, form]);
 
     if (!user) return null;
 
-    const handleOk = () => {
-        if (!name || !avatar) {
-            setError("Все поля обязательны");
-            return;
-        }
-
-        if (!avatar.startsWith("http")) {
-            setError("Некорректная ссылка");
-            return;
-        }
+    const handleFinish = (values: { name: string, avatar: string }) => {
 
         mutate(
             {
                 ...user,
-                name,
-                avatar,
+                name: values.name,
+                avatar: values.avatar,
             },
             {
                 onSuccess: () => {
-                    setError('');
+                    form.resetFields();
                     onClose();
                 },
             }
@@ -54,8 +56,6 @@ export const EditUserModal = ({ open, user, onClose }: EditUserModalProps) => {
     };
 
     const handleDelete = () => {
-        if (!user) return;
-
         deleteUser(user.id, {
             onSuccess: () => {
                 onClose();
@@ -67,48 +67,70 @@ export const EditUserModal = ({ open, user, onClose }: EditUserModalProps) => {
         <Modal
             title="Редактировать пользователя"
             open={open}
-            onOk={handleOk}
             onCancel={onClose}
-            okButtonProps={{ disabled: isLoading }}
-            cancelButtonProps={{ disabled: isLoading }}
-            closable={!isLoading}
-            maskClosable={!isLoading}
+            closable={!isLoading && !isDeleting}
+            maskClosable={!isLoading && !isDeleting}
             footer={[
-                <Popconfirm
-                    key="delete"
-                    title="Удалить пользователя?"
-                    description="Это действие нельзя отменить"
-                    okText="Удалить"
-                    cancelText="Отмена"
-                    onConfirm={handleDelete}
-                    disabled={isDeleting}
-                >
-                    <Button type="primary" loading={isDeleting}>
-                        Удалить
-                    </Button>
-                </Popconfirm>,
-                <Button key="save" type="primary" onClick={handleOk}>
-                    Сохранить
-                </Button>,
-                <Button key="cancel" type="primary" onClick={onClose}>
-                    Отмена
-                </Button>,
+                <ModalFooter>
+                    <Popconfirm
+                        key="delete"
+                        title="Удалить пользователя?"
+                        description="Это действие нельзя отменить"
+                        okText="Удалить"
+                        cancelText="Отмена"
+                        onConfirm={handleDelete}
+                        disabled={isDeleting}
+                    >
+                        <Button type="primary" loading={isDeleting}>
+                            Удалить
+                        </Button>
+                    </Popconfirm>
+                    <RightButtons>
+                        <Button key="save" type="primary" onClick={() => form.submit()}>
+                            Сохранить
+                        </Button>
+                        <Button key="cancel" type="primary" onClick={onClose} disabled={isLoading || isDeleting}>
+                            Отмена
+                        </Button>
+                    </RightButtons>
+                </ModalFooter>
             ]}
         >
-            <Input disabled value={user.id} />
-            <Input
-                style={{ marginTop: 8 }}
-                placeholder="Имя"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-            />
-            <Input
-                style={{ marginTop: 8 }}
-                placeholder="Ссылка на аватарку"
-                value={avatar}
-                onChange={(e) => setAvatar(e.target.value)}
-            />
-            {error && <div style={{ color: 'red' }}>{error}</div>}
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleFinish}
+                requiredMark={false}
+            >
+                <Form.Item
+                    label="id"
+                    name="id"
+                    
+                >
+                    <Input disabled />
+                </Form.Item>
+
+                <Form.Item
+                    label="Имя"
+                    name="name"
+                    rules={[
+                        { required: true, message: "Введите имя" },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+                    label="Ссылка на аватарку"
+                    name="avatar"
+                    rules={[
+                        { required: true, message: "Введите ссылку" },
+                        { type: "url", message: "Некорректная ссылка" },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+            </Form>
         </Modal>
     );
 };
